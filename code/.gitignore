@@ -1,4 +1,4 @@
 .pioenvs
 .piolibdeps
-.gch
+*.gch
 credentials.h
