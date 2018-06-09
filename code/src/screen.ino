@@ -42,6 +42,12 @@ uint16_t _screen_pos_y = 0;
 // Keep track of the drawing x coordinate
 uint16_t _screen_pos_x = 0;
 
+// Keeps brightness value
+uint8_t _screen_brightness = 0;
+
+// TTNCat logo
+extern const unsigned char ttncat_logo[];
+
 // -----------------------------------------------------------------------------
 
 int _screen_scroll_line() {
@@ -87,13 +93,65 @@ void _screen_scroll_address(uint16_t vsp) {
 
 // -----------------------------------------------------------------------------
 
+void screen_brightness(uint8_t brightness) {
+    M5.Lcd.setBrightness(_screen_brightness);
+    _screen_brightness = brightness;
+}
+
+void screen_brightness(uint8_t target, uint32_t slowness) {
+    uint8_t step = _screen_brightness > target ? -1 : 1;
+    uint8_t brightness = _screen_brightness;
+    while (true) {
+        M5.Lcd.setBrightness(brightness);
+        if (brightness == target) break;
+        brightness += step;
+        delay(slowness);
+    }
+    _screen_brightness = target;
+
+}
+
+void screen_on(uint8_t slowness) {
+    screen_brightness(255, slowness);
+}
+
+void screen_on() {
+    screen_on(1);
+}
+
+void screen_off(uint8_t slowness) {
+    screen_brightness(0, slowness);
+}
+
+void screen_off() {
+    screen_off(1);
+}
+
 void screen_setup() {
+
+    // Init screen
+    M5.Lcd.begin();
+
+    // Set screen off
+    screen_brightness(0);
+
+    // Show logo on power on
+    if (1 == rtc_get_reset_reason(0) || 12 == rtc_get_reset_reason(0)) {
+        M5.Lcd.drawBitmap(0, 0, 320, 240, (uint16_t *) ttncat_logo);
+        screen_on(10);
+        delay(1000);
+        screen_off(10);
+        delay(1000);
+    }
 
     // Setup the TFT display
     M5.Lcd.fillScreen(TFT_BLACK);
 
     // Change colour for scrolling zone text
     M5.Lcd.setTextColor(DEFAULT_COLOR, TFT_BLACK);
+
+    // Max brightness
+    screen_on();
 
     // Setup scroll area
     // _screen_scroll_area(TOP_FIXED_AREA, BOT_FIXED_AREA);

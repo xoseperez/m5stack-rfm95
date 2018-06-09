@@ -18,7 +18,7 @@ The sample code is configured to connect to The Things Network using EU frequenc
 This repository contains:
 
 * PCB schematics, layout (for Eagle) and gerbers.
-* 3D model of different enclosure options (bottom layer, middle layer), both scad file for OpenSCAD and STL files.
+* 3D model of different enclosure options (bottom layer, middle layer), both OpenSCAD and STL files.
 * Sample code that sends an auto-increment number and sleeps the board.
 
 ## License

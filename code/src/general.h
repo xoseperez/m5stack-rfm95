@@ -41,8 +41,10 @@ void ttn_register(void (*callback)(uint8_t message));
 //#define DEBUG_PORT            Serial      // Serial debug port
 #define SERIAL_BAUD             115200      // Serial debug baud rate
 #define SLEEP_BETWEEN_MESSAGES  1           // Do sleep between messages
-#define PRE_SLEEP_DELAY         5000        // Time before going to sleep
-#define TX_INTERVAL             60000       // Send message every these many milliseconds
+#define TX_INTERVAL             60000       // Send message every these many millis
+#define SLEEP_INTERVAL          30000       // Sleep for these many millis
+#define SLEEP_DELAY             500         // Time between sleep blocks to keep IP5306 on
+#define MESSAGE_TO_SLEEP_DELAY  2000        // Time after message before going to sleep
 
 // -----------------------------------------------------------------------------
 // DEBUG
