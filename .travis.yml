@@ -8,4 +8,4 @@ cache:
 install:
 - pip install -U platformio
 script:
-- cd code && pio run
+- cd code && cp src/credentials.h.sample src/credentials.h && pio run
