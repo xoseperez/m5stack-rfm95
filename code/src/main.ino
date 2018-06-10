@@ -49,7 +49,8 @@ void send() {
     screen_print(buffer, LIGHTGREY);
 
     uint8_t data[1] = { count };
-    ttn_send(data, 1, 1, 0);
+    bool confirmed = (LORAWAN_CONFIRMED_EVERY > 0) & (count % LORAWAN_CONFIRMED_EVERY == 0);
+    ttn_send(data, 1, LORAWAN_PORT, confirmed);
 
     count++;
 
@@ -64,6 +65,8 @@ void callback(uint8_t message) {
     if (EV_RESET == message) screen_print("[TTN] Reset\n", BLUE);
     if (EV_LINK_DEAD == message) screen_print("[TTN] Link dead\n", RED);
     if (EV_ACK == message) screen_print("[TTN] ACK received\n");
+    if (EV_PENDING == message) screen_print("[TTN] Message discarded\n", RED);
+    if (EV_QUEUED == message) screen_print("[TTN] Message queued\n");
 
     if (EV_TXCOMPLETE == message) {
 

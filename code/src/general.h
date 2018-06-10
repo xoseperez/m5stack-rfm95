@@ -40,11 +40,16 @@ void ttn_register(void (*callback)(uint8_t message));
 
 //#define DEBUG_PORT            Serial      // Serial debug port
 #define SERIAL_BAUD             115200      // Serial debug baud rate
-#define SLEEP_BETWEEN_MESSAGES  1           // Do sleep between messages
+
 #define TX_INTERVAL             60000       // Send message every these many millis
+
+#define SLEEP_BETWEEN_MESSAGES  1           // Do sleep between messages
 #define SLEEP_INTERVAL          30000       // Sleep for these many millis
 #define SLEEP_DELAY             500         // Time between sleep blocks to keep IP5306 on
 #define MESSAGE_TO_SLEEP_DELAY  2000        // Time after message before going to sleep
+
+#define LORAWAN_PORT            1           // Port the messages will be sent to
+#define LORAWAN_CONFIRMED_EVERY 0           // Send confirmed message every these many messages (0 means never)
 
 // -----------------------------------------------------------------------------
 // DEBUG
@@ -60,5 +65,7 @@ void ttn_register(void (*callback)(uint8_t message));
 // Custom messages
 // -----------------------------------------------------------------------------
 
-#define EV_ACK          100
-#define EV_RESPONSE     101
+#define EV_QUEUED       100
+#define EV_PENDING      101
+#define EV_ACK          102
+#define EV_RESPONSE     103

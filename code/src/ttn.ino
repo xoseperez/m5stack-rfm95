@@ -29,6 +29,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <vector>
 
 #ifndef CFG_eu868
+    // Currently, this sketch only supports EU868 network, edit your
+    // lmic_project_config.h file in the library to change the setting
     #error "This script is meant to connect to TTN EU network at 868MHz"
 #endif
 
@@ -109,29 +111,6 @@ void onEvent(ev_t event) {
 
 }
 
-bool _ttn_check() {
-
-    // Reset radio
-    pinMode(RESET_GPIO, OUTPUT);
-    digitalWrite(RESET_GPIO, LOW);
-    delay(10);
-    digitalWrite(RESET_GPIO, HIGH);
-    delay(10);
-
-    // Check device (address 0x42 must have a 0x12)
-    pinMode(NSS_GPIO, OUTPUT);
-    digitalWrite(NSS_GPIO, LOW);
-    //SPI.setFrequency(10000000);
-    SPI.setDataMode(SPI_MODE3);
-    SPI.transfer(0x42);
-    uint8_t version = SPI.transfer(0x00);
-    digitalWrite(NSS_GPIO, HIGH);
-
-    Serial.println(version, HEX);
-    return (0x12 == version);
-
-}
-
 // -----------------------------------------------------------------------------
 // Public methods
 // -----------------------------------------------------------------------------
@@ -155,21 +134,15 @@ bool ttn_setup() {
     // SPI interface
     SPI.begin(SCK_GPIO, MISO_GPIO, MOSI_GPIO, NSS_GPIO);
 
-    return true;
-    //return _ttn_check();
+    // LMIC init
+    return ( 1 == os_init_ex( (const void *) &lmic_pins ) );
 
 }
 
 void ttn_join() {
 
-    // LMIC init
-    os_init();
-
     // Reset the MAC state. Session and pending data transfers will be discarded.
     LMIC_reset();
-
-    // Enable ADR
-    LMIC_setAdrMode(true);
 
     #ifdef USE_ABP
 
@@ -225,6 +198,9 @@ void ttn_join() {
         // Set data rate and transmit power for uplink (note: txpow seems to be ignored by the library)
         LMIC_setDrTxpow(DR_SF12, 14);
 
+        // Enable ADR
+        //LMIC_setAdrMode(true);
+
         // Trigger a false joined
         _ttn_callback(EV_JOINED);
 
@@ -236,7 +212,7 @@ void ttn_send(uint8_t * data, size_t len, uint8_t port, bool confirmed){
 
     // Check if there is not a current TX/RX job running
     if (LMIC.opmode & OP_TXRXPEND) {
-        DEBUG_MSG("[LMIC] Pending message\n");
+        _ttn_callback(EV_PENDING);
         return;
     }
 
@@ -244,7 +220,7 @@ void ttn_send(uint8_t * data, size_t len, uint8_t port, bool confirmed){
     // Parameters are port, data, length, confirmed
     LMIC_setTxData2(port, data, len, confirmed ? 1 : 0);
 
-    DEBUG_MSG("[LMIC] Packet queued\n");
+    _ttn_callback(EV_QUEUED);
 
 }
 
