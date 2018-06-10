@@ -106,7 +106,7 @@ module bottom_layer() {
         translate([0,0,top_height]) {
             difference() {
                 linear_extrude(wall_height) walls();
-                translate([0,outer_size/2,height-6]) antenna();
+                translate([0,outer_size/2,4]) antenna();
             }
             translate([0,0,wall_height-hole_height]) {
                 linear_extrude(hole_height) holes();
@@ -148,5 +148,5 @@ module middle_layer() {
 // Entry points
 // -------------------------------------------------
 
-//bottom_layer();
-middle_layer();
+bottom_layer();
+//middle_layer();
