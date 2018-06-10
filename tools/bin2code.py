@@ -9,22 +9,23 @@
 import sys, os
 
 in_name = sys.argv[1]
+header_len = 138
 out_name = in_name + '.c'
 file_size = os.path.getsize(in_name)
 
 with open(in_name, 'rb') as infile:
     with open(out_name, 'wb+') as outfile:
 
-        arrary_name = 'const unsigned char ' + out_name[0:out_name.find('.')] + '[' +str(file_size-138)+'] = {\n'
+        arrary_name = 'const unsigned char ' + out_name[0:out_name.find('.')] + '[' +str(file_size-header_len)+'] = {\n'
         outfile.write(arrary_name.encode('utf-8'))
 
         # discard header
-        data = infile.read(138)
+        if header_len > 0:
+            data = infile.read(header_len)
 
         while True:
             data = infile.read(20)
             if len(data) > 0:
-                # outfile.write('\t'.encode('utf-8'))
                 for i in range(0, len(data)):
                     d = "0x%02x," % ord(data[i])
                     outfile.write(d.encode('utf-8'))
