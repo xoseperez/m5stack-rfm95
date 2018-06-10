@@ -74,6 +74,7 @@ void callback(uint8_t message) {
 
         #if SLEEP_BETWEEN_MESSAGES
 
+            // Show the going to sleep message on the screen
             char buffer[64];
             if (_poweroff) {
                 snprintf(buffer, sizeof(buffer), "[M5S] Power off in %u seconds\n", (int) (MESSAGE_TO_SLEEP_DELAY / 1000));
@@ -84,16 +85,25 @@ void callback(uint8_t message) {
             delay(MESSAGE_TO_SLEEP_DELAY);
             screen_off();
 
+            // Set the left most button to wake the board
             sleep_interrupt(BUTTON_A_PIN, LOW);
 
-            // Power off
+            // If power off sleep forever
             if (_poweroff) sleep_forever();
 
-            // We sleep in blocks of 30' bacause of this:
+            // We sleep in blocks of 30' because of this:
             // http://forum.m5stack.com/topic/62/ip5306-automatic-standby
             // so we calculate the number of blocks to sleep
+
+            // We sleep for the interval between messages minus the current millis
+            // this way we distribute the messages evenly every TX_INTERVAL millis
             uint32_t sleep_for = TX_INTERVAL - millis();
-            sleep_intervals = sleep_for / SLEEP_INTERVAL + 1;
+
+            // How many sleep blocks do we have to sleep?
+            sleep_intervals = sleep_for / SLEEP_INTERVAL;
+
+            // Trigger the deep sleep mode
+            // The first block might be shorter than SLEEP_INTERVAL
             sleep_millis(sleep_for % SLEEP_INTERVAL);
 
         #endif
@@ -122,23 +132,33 @@ void callback(uint8_t message) {
 
 void setup() {
 
+    // Awake from deep sleep (reason 5)?
+    if (5 == rtc_get_reset_reason(0)) {
+
+        // Is the button pressed (HIGH means "no")?
+        if (digitalRead(BUTTON_A_PIN) == HIGH) {
+
+            // If we are not done yet...
+            if (sleep_intervals > 0) {
+
+                // Update the number of intervals left
+                --sleep_intervals;
+
+                // Delay a bit so the IP5306 notices it
+                delay(SLEEP_DELAY);
+
+                // And go back to sleep
+                sleep_interrupt(BUTTON_A_PIN, LOW);
+                sleep_millis(SLEEP_INTERVAL - millis());
+
+            }
+        }
+    }
+
     // Debug
     #if DEBUG_PORT
         DEBUG_PORT.begin(SERIAL_BAUD);
     #endif
-
-    // How many times in a row have we slept?
-    if (5 == rtc_get_reset_reason(0)) {
-        if (digitalRead(BUTTON_A_PIN) == HIGH) {
-            --sleep_intervals;
-            if (sleep_intervals > 0) {
-                delay(SLEEP_DELAY);
-                sleep_interrupt(BUTTON_A_PIN, LOW);
-                sleep_millis(SLEEP_INTERVAL - millis());
-            }
-
-        }
-    }
 
     // Buttons
     pinMode(BUTTON_A_PIN, INPUT_PULLUP);
