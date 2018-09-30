@@ -1,7 +1,7 @@
 /*
 
-M5stack TTN Node
-LMIC module
+TTN module
+Wrapper to use TTN with the LMIC library
 
 Copyright (C) 2018 by Xose Pérez <xose dot perez at gmail dot com>
 
@@ -23,30 +23,17 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-#include "general.h"
 #include <hal/hal.h>
 #include <SPI.h>
 #include <vector>
+#include "configuration.h"
+#include "credentials.h"
 
 #ifndef CFG_eu868
     // Currently, this sketch only supports EU868 network, edit your
     // lmic_project_config.h file in the library to change the setting
     #error "This script is meant to connect to TTN EU network at 868MHz"
 #endif
-
-// -----------------------------------------------------------------------------
-// M5Stack RFM95 mapping
-// http://github.com/xoseperez/m5stack-rfm95
-// -----------------------------------------------------------------------------
-
-#define SCK_GPIO        18
-#define MISO_GPIO       19
-#define MOSI_GPIO       23
-#define NSS_GPIO        05
-#define RESET_GPIO      36
-#define DIO0_GPIO       26
-#define DIO1_GPIO       16
-#define DIO2_GPIO       17
 
 // -----------------------------------------------------------------------------
 // Globals
@@ -59,10 +46,6 @@ const lmic_pinmap lmic_pins = {
     .rst = RESET_GPIO,
     .dio = {DIO0_GPIO, DIO1_GPIO, DIO2_GPIO},
 };
-
-#if !defined(USE_ABP) && !defined(USE_OTAA)
-    #error "Define either USE_ABP or USE_OTAA in credentials.h"
-#endif
 
 #ifdef USE_ABP
 // These callbacks are only used in over-the-air activation, so they are
@@ -196,16 +179,21 @@ void ttn_join() {
         LMIC.dn2Dr = DR_SF9;
 
         // Set data rate and transmit power for uplink (note: txpow seems to be ignored by the library)
-        LMIC_setDrTxpow(DR_SF12, 14);
-
-        // Enable ADR
-        //LMIC_setAdrMode(true);
+        LMIC_setDrTxpow(DR_SF7, 14);
 
         // Trigger a false joined
         _ttn_callback(EV_JOINED);
 
     #endif // USE_ABP
 
+}
+
+void ttn_sf(unsigned char sf) {
+    LMIC_setDrTxpow(sf, 14);
+}
+
+void ttn_adr(bool enabled) {
+    LMIC_setAdrMode(enabled);
 }
 
 void ttn_send(uint8_t * data, size_t len, uint8_t port, bool confirmed){

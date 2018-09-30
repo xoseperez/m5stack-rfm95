@@ -1,6 +1,6 @@
 /*
 
-M5stack TTN Node
+M5stack based TTN Node
 
 Copyright (C) 2018 by Xose Pérez <xose dot perez at gmail dot com>
 
@@ -25,7 +25,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #pragma once
 
 #include <Arduino.h>
-#include <M5Stack.h>
 #include <lmic.h>
 
 // Copy and rename credentials.sample.h to credentials.h
@@ -40,16 +39,15 @@ void ttn_register(void (*callback)(uint8_t message));
 
 //#define DEBUG_PORT            Serial      // Serial debug port
 #define SERIAL_BAUD             115200      // Serial debug baud rate
-
 #define TX_INTERVAL             60000       // Send message every these many millis
-
 #define SLEEP_BETWEEN_MESSAGES  1           // Do sleep between messages
 #define SLEEP_INTERVAL          30000       // Sleep for these many millis
 #define SLEEP_DELAY             500         // Time between sleep blocks to keep IP5306 on
 #define MESSAGE_TO_SLEEP_DELAY  2000        // Time after message before going to sleep
-
 #define LORAWAN_PORT            1           // Port the messages will be sent to
 #define LORAWAN_CONFIRMED_EVERY 0           // Send confirmed message every these many messages (0 means never)
+#define LORAWAN_SF              DR_SF7      // Spreading factor
+#define LORAWAN_ADR             0           // Enable ADR
 
 // -----------------------------------------------------------------------------
 // DEBUG
@@ -69,3 +67,16 @@ void ttn_register(void (*callback)(uint8_t message));
 #define EV_PENDING      101
 #define EV_ACK          102
 #define EV_RESPONSE     103
+
+// -----------------------------------------------------------------------------
+// LoRa SPI
+// -----------------------------------------------------------------------------
+
+#define SCK_GPIO        18
+#define MISO_GPIO       19
+#define MOSI_GPIO       23
+#define NSS_GPIO        05
+#define RESET_GPIO      36
+#define DIO0_GPIO       26
+#define DIO1_GPIO       16
+#define DIO2_GPIO       17

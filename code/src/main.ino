@@ -26,7 +26,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-#include "general.h"
+#include "configuration.h"
+#include <M5Stack.h>
 #include <rom/rtc.h>
 
 // Message counter, stored in RTC memory, survives deep sleep
@@ -49,7 +50,11 @@ void send() {
     screen_print(buffer, LIGHTGREY);
 
     uint8_t data[1] = { count };
-    bool confirmed = (LORAWAN_CONFIRMED_EVERY > 0) & (count % LORAWAN_CONFIRMED_EVERY == 0);
+    #if LORAWAN_CONFIRMED_EVERY > 0
+        bool confirmed = (count % LORAWAN_CONFIRMED_EVERY == 0);
+    #else
+        bool confirmed = false;
+    #endif
     ttn_send(data, 1, LORAWAN_PORT, confirmed);
 
     count++;
@@ -180,6 +185,8 @@ void setup() {
 
     ttn_register(callback);
     ttn_join();
+    ttn_sf(LORAWAN_SF);
+    ttn_adr(LORAWAN_ADR);
 
 }
 

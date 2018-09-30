@@ -23,6 +23,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 */
 
+#include <M5Stack.h>
+
 #define TEXT_HEIGHT         16      // Height of text to be printed and scrolled
                                     // The scrolling area must be a integral multiple of TEXT_HEIGHT
 #define TEXT_WIDTH          9       // Witdh of a character
