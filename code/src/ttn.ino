@@ -178,9 +178,6 @@ void ttn_join() {
         // TTN uses SF9 for its RX2 window.
         LMIC.dn2Dr = DR_SF9;
 
-        // Set data rate and transmit power for uplink (note: txpow seems to be ignored by the library)
-        LMIC_setDrTxpow(DR_SF7, 14);
-
         // Trigger a false joined
         _ttn_callback(EV_JOINED);
 
@@ -194,6 +191,10 @@ void ttn_sf(unsigned char sf) {
 
 void ttn_adr(bool enabled) {
     LMIC_setAdrMode(enabled);
+}
+
+void ttn_cnt(unsigned char num) {
+    LMIC_setSeqnoUp(num);
 }
 
 void ttn_send(uint8_t * data, size_t len, uint8_t port, bool confirmed){

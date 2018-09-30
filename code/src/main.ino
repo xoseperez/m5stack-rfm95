@@ -31,7 +31,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <rom/rtc.h>
 
 // Message counter, stored in RTC memory, survives deep sleep
-RTC_DATA_ATTR uint8_t count = 0;
+RTC_DATA_ATTR uint32_t count = 0;
 
 // Number of sleeping intervals left, stored in RTC memory, survives deep sleep
 RTC_DATA_ATTR uint8_t sleep_intervals = 0;
@@ -46,15 +46,16 @@ bool _poweroff = false;
 void send() {
 
     char buffer[64];
-    snprintf(buffer, sizeof(buffer),"[TTN] Sending: 0x%02X\n", count);
+    snprintf(buffer, sizeof(buffer),"[TTN] Sending #%03d\n", (uint8_t) (count & 0xFF));
     screen_print(buffer, LIGHTGREY);
 
-    uint8_t data[1] = { count };
+    uint8_t data[1] = { (uint8_t) (count & 0xFF) };
     #if LORAWAN_CONFIRMED_EVERY > 0
         bool confirmed = (count % LORAWAN_CONFIRMED_EVERY == 0);
     #else
         bool confirmed = false;
     #endif
+    ttn_cnt(count);
     ttn_send(data, 1, LORAWAN_PORT, confirmed);
 
     count++;
