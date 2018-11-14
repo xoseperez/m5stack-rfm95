@@ -5,7 +5,8 @@ Wrapper to use TTN with the LMIC library
 
 Copyright (C) 2018 by Xose Pérez <xose dot perez at gmail dot com>
 
-This code requires LMIC library by Matthijs Kooijman
+This code requires the MCCI LoRaWAN LMIC library
+by IBM, Matthis Kooijman, Terry Moore, ChaeHee Won, Frank Rose
 https://github.com/matthijskooijman/arduino-lmic
 
 This program is free software: you can redistribute it and/or modify
@@ -27,6 +28,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <SPI.h>
 #include <vector>
 #include "configuration.h"
+
+// Copy and rename credentials.sample.h to credentials.h
+// and configure it with your node settings
 #include "credentials.h"
 
 #ifndef CFG_eu868
@@ -177,6 +181,9 @@ void ttn_join() {
 
         // TTN uses SF9 for its RX2 window.
         LMIC.dn2Dr = DR_SF9;
+
+        // Set default rate and transmit power for uplink (note: txpow seems to be ignored by the library)
+        LMIC_setDrTxpow(DR_SF7, 14);
 
         // Trigger a false joined
         _ttn_callback(EV_JOINED);

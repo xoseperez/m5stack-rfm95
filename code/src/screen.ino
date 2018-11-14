@@ -1,7 +1,6 @@
 /*
 
-M5stack TTN Node
-Screen module
+M5stack - Screen module
 
 Copyright (C) 2018 by Xose Pérez <xose dot perez at gmail dot com>
 

@@ -1,6 +1,5 @@
 /*
 
-M5stack TTN Node
 Sleep module
 
 Copyright (C) 2018 by Xose Pérez <xose dot perez at gmail dot com>
@@ -20,24 +19,23 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-#include <esp_deep_sleep.h>
 #include <esp_sleep.h>
 
 void sleep_interrupt(uint8_t gpio, uint8_t mode) {
-    esp_deep_sleep_enable_ext0_wakeup((gpio_num_t) gpio, mode);
+    esp_sleep_enable_ext0_wakeup((gpio_num_t) gpio, mode);
 }
 
 void sleep_interrupt_mask(uint64_t mask, uint8_t mode) {
-    esp_deep_sleep_enable_ext1_wakeup(mask, (esp_ext1_wakeup_mode_t) mode);
+    esp_sleep_enable_ext1_wakeup(mask, (esp_sleep_ext1_wakeup_mode_t) mode);
 }
 
 void sleep_millis(uint64_t ms) {
-    esp_deep_sleep_enable_timer_wakeup(ms * 1000);
+    esp_sleep_enable_timer_wakeup(ms * 1000);
     esp_deep_sleep_start();
 }
 
 void sleep_seconds(uint32_t seconds) {
-    esp_deep_sleep_enable_timer_wakeup(seconds * 1000000);
+    esp_sleep_enable_timer_wakeup(seconds * 1000000);
     esp_deep_sleep_start();
 }
 

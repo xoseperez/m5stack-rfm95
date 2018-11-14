@@ -1,6 +1,6 @@
 /*
 
-M5stack based TTN Node
+M5stack based TTN Tracker
 
 Copyright (C) 2018 by Xose Pérez <xose dot perez at gmail dot com>
 
@@ -27,23 +27,27 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <Arduino.h>
 #include <lmic.h>
 
-// Copy and rename credentials.sample.h to credentials.h
-// and configure it with your node settings
-#include "credentials.h"
-
 void ttn_register(void (*callback)(uint8_t message));
+
+// -----------------------------------------------------------------------------
+// Version
+
+// -----------------------------------------------------------------------------
+
+#define APP_NAME                "M5STACK TTN TRACKER"
+#define APP_VERSION             "0.2.0"
 
 // -----------------------------------------------------------------------------
 // Configuration
 // -----------------------------------------------------------------------------
 
-//#define DEBUG_PORT            Serial      // Serial debug port
+//#define DEBUG_PORT              Serial      // Serial debug port
 #define SERIAL_BAUD             115200      // Serial debug baud rate
-#define TX_INTERVAL             60000       // Send message every these many millis
+#define TX_INTERVAL             15000       // Send message every these many millis
 #define SLEEP_BETWEEN_MESSAGES  1           // Do sleep between messages
-#define SLEEP_INTERVAL          30000       // Sleep for these many millis
+#define MAX_SLEEP_INTERVAL      30000       // Sleep for these many millis
 #define SLEEP_DELAY             500         // Time between sleep blocks to keep IP5306 on
-#define MESSAGE_TO_SLEEP_DELAY  2000        // Time after message before going to sleep
+#define MESSAGE_TO_SLEEP_DELAY  500         // Time after message before going to sleep
 #define LORAWAN_PORT            1           // Port the messages will be sent to
 #define LORAWAN_CONFIRMED_EVERY 0           // Send confirmed message every these many messages (0 means never)
 #define LORAWAN_SF              DR_SF7      // Spreading factor

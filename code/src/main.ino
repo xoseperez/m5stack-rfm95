@@ -106,11 +106,11 @@ void callback(uint8_t message) {
             uint32_t sleep_for = TX_INTERVAL - millis();
 
             // How many sleep blocks do we have to sleep?
-            sleep_intervals = sleep_for / SLEEP_INTERVAL;
+            sleep_intervals = sleep_for / MAX_SLEEP_INTERVAL;
 
             // Trigger the deep sleep mode
-            // The first block might be shorter than SLEEP_INTERVAL
-            sleep_millis(sleep_for % SLEEP_INTERVAL);
+            // The first block might be shorter than MAX_SLEEP_INTERVAL
+            sleep_millis(sleep_for % MAX_SLEEP_INTERVAL);
 
         #endif
 
@@ -155,14 +155,14 @@ void setup() {
 
                 // And go back to sleep
                 sleep_interrupt(BUTTON_A_PIN, LOW);
-                sleep_millis(SLEEP_INTERVAL - millis());
+                sleep_millis(MAX_SLEEP_INTERVAL - millis());
 
             }
         }
     }
 
     // Debug
-    #if DEBUG_PORT
+    #ifdef DEBUG_PORT
         DEBUG_PORT.begin(SERIAL_BAUD);
     #endif
 
