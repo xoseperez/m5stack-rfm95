@@ -29,6 +29,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "configuration.h"
 #include <M5Stack.h>
 #include <rom/rtc.h>
+#include <CayenneLPP.h>
 
 // Message counter, stored in RTC memory, survives deep sleep
 RTC_DATA_ATTR uint32_t count = 0;
@@ -39,6 +40,9 @@ RTC_DATA_ATTR uint8_t sleep_intervals = 0;
 // Whether to go deep sleep or power off
 bool _poweroff = false;
 
+// Cayenne buffer
+CayenneLPP lpp(51);
+
 // -----------------------------------------------------------------------------
 // Application
 // -----------------------------------------------------------------------------
@@ -46,17 +50,49 @@ bool _poweroff = false;
 void send() {
 
     char buffer[64];
-    snprintf(buffer, sizeof(buffer),"[TTN] Sending #%03d\n", (uint8_t) (count & 0xFF));
+
+    /*
+    
+    Channel definition for trackers:
+
+    CHANNEL 0: counter (digital_out_0)
+    CHANNEL 1: gps (gps_1.altitude gps_1.latitude gps_1.longitude)
+    CHANNEL 2: temperature (temperature_2)
+    CHANNEL 3: accelerometer (accelerometer_3.x accelerometer_3.y accelerometer_3.z)
+    CHANNEL 4: battery (analog_out_4) in volts
+    CHANNEL 5: sats (digital_out_5)
+    CHANNEL 6: hdop (analog_out_4)
+
+    */
+
+    lpp.reset();
+    lpp.addDigitalOutput(0, count);
+
+    snprintf(buffer, sizeof(buffer),"[MSG] Message #%03d\n", (uint8_t) (count & 0xFF));
     screen_print(buffer, LIGHTGREY);
 
-    uint8_t data[1] = { (uint8_t) (count & 0xFF) };
+    if (gps_valid()) {
+        
+        double lon = gps_longitude();
+        double lat = gps_latitude();
+        snprintf(buffer, sizeof(buffer),"[GPS] %11.6f %10.6f\n", lon, lat);
+        screen_print(buffer, LIGHTGREY);
+
+        lpp.addGPS(1, lat, lon, gps_altitude());
+        //lpp.addAnalogOutput(4, battery());
+        lpp.addDigitalOutput(5, gps_sats());
+        lpp.addAnalogOutput(6, gps_hdop());
+
+    }
+
     #if LORAWAN_CONFIRMED_EVERY > 0
         bool confirmed = (count % LORAWAN_CONFIRMED_EVERY == 0);
     #else
         bool confirmed = false;
     #endif
+
     ttn_cnt(count);
-    ttn_send(data, 1, LORAWAN_PORT, confirmed);
+    ttn_send(lpp.getBuffer(), lpp.getSize(), LORAWAN_PORT, confirmed);
 
     count++;
 
@@ -90,6 +126,9 @@ void callback(uint8_t message) {
             screen_print(buffer);
             delay(MESSAGE_TO_SLEEP_DELAY);
             screen_off();
+
+            // GPS
+            if (gps_connected()) gps_disconnect();
 
             // Set the left most button to wake the board
             sleep_interrupt(BUTTON_A_PIN, LOW);
@@ -177,16 +216,26 @@ void setup() {
     // Hello
     screen_print("M5STACK-RFM95 TTN EXAMPLE\n", BLUE);
 
+    // GPS setup
+    gps_connect();
+    if (gps_connected()) {
+        screen_print("[GPS] GPS connected!\n", GREEN);
+        gps_prime(GPS_PRIMING_TIME);
+        if (gps_valid()) {
+            screen_print("[GPS] GPS position lock!\n", GREEN);
+        }
+    }
+
     // TTN setup
     if (!ttn_setup()) {
         screen_print("[M5S] Could not find the radio module!\n", RED);
         delay(MESSAGE_TO_SLEEP_DELAY);
         sleep_forever();
     }
-
     ttn_register(callback);
     ttn_join();
     ttn_sf(LORAWAN_SF);
+    ttn_pow(LORAWAN_POW);
     ttn_adr(LORAWAN_ADR);
 
 }
@@ -210,5 +259,6 @@ void loop() {
     }
 
     ttn_loop();
+    gps_loop();
 
 }

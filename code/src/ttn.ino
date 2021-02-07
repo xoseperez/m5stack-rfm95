@@ -196,6 +196,10 @@ void ttn_sf(unsigned char sf) {
     LMIC_setDrTxpow(sf, 14);
 }
 
+void ttn_pow(unsigned char pow) {
+    LMIC_setupBand(BAND_CENTI, pow, 100);
+}
+
 void ttn_adr(bool enabled) {
     LMIC_setAdrMode(enabled);
 }

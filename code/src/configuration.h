@@ -35,7 +35,7 @@ void ttn_register(void (*callback)(uint8_t message));
 // -----------------------------------------------------------------------------
 
 #define APP_NAME                "M5STACK TTN TRACKER"
-#define APP_VERSION             "0.2.0"
+#define APP_VERSION             "0.3.0"
 
 // -----------------------------------------------------------------------------
 // Configuration
@@ -51,7 +51,22 @@ void ttn_register(void (*callback)(uint8_t message));
 #define LORAWAN_PORT            1           // Port the messages will be sent to
 #define LORAWAN_CONFIRMED_EVERY 0           // Send confirmed message every these many messages (0 means never)
 #define LORAWAN_SF              DR_SF7      // Spreading factor
+#define LORAWAN_POW             14          // Transmitting power in dBm (0 to 14 for EU bands)
 #define LORAWAN_ADR             0           // Enable ADR
+
+// -----------------------------------------------------------------------------
+// GPS
+// -----------------------------------------------------------------------------
+
+#define GPS_VIA_BLUETOOTH
+#define GPS_ADDRESS             {0x00, 0x80, 0x5A, 0x68, 0x1A, 0x6B}
+#define GPS_PIN                 "0000"
+#define GPS_PRIMING_TIME        1000
+
+//#define GPS_VIA_SERIAL
+#define GPS_RX_PIN              0
+#define GPS_TX_PIN              0
+#define GPS_BAUDRATE            9600
 
 // -----------------------------------------------------------------------------
 // DEBUG
