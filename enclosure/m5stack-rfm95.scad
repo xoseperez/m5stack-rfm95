@@ -14,8 +14,9 @@ wall_width = 1.7;
 wall_height = 10.0;
 tab_width = 0.7;
 tab_height = 1.0;
-hole_height = 3.0;
+hole_height = 10.0;
 top_height = 4.0;
+antenna_cfg = 2;
 
 // -------------------------------------------------
 
@@ -106,7 +107,10 @@ module bottom_layer() {
         translate([0,0,top_height]) {
             difference() {
                 linear_extrude(wall_height) walls();
-                translate([0,outer_size/2,4]) antenna();
+                if (antenna_cfg == 1) translate([0,outer_size/2,4]) antenna();
+                if (antenna_cfg == 2) translate([7.5,outer_size/2,4]) antenna();
+                if (antenna_cfg == 3) translate([7.5,outer_size/2,4]) antenna();
+                if (antenna_cfg == 3) translate([-7.5,outer_size/2,4]) antenna();
             }
             translate([0,0,wall_height-hole_height]) {
                 linear_extrude(hole_height) holes();
