@@ -71,19 +71,21 @@ void send() {
     snprintf(buffer, sizeof(buffer),"[MSG] Message #%03d\n", (uint8_t) (count & 0xFF));
     screen_print(buffer, LIGHTGREY);
 
-    if (gps_valid()) {
-        
-        double lon = gps_longitude();
-        double lat = gps_latitude();
-        snprintf(buffer, sizeof(buffer),"[GPS] %11.6f %10.6f\n", lon, lat);
-        screen_print(buffer, LIGHTGREY);
+    #if GPS_ENABLE
+        if (gps_valid()) {
+            
+            double lon = gps_longitude();
+            double lat = gps_latitude();
+            snprintf(buffer, sizeof(buffer),"[GPS] %11.6f %10.6f\n", lon, lat);
+            screen_print(buffer, LIGHTGREY);
 
-        lpp.addGPS(1, lat, lon, gps_altitude());
-        //lpp.addAnalogOutput(4, battery());
-        lpp.addDigitalOutput(5, gps_sats());
-        lpp.addAnalogOutput(6, gps_hdop());
+            lpp.addGPS(1, lat, lon, gps_altitude());
+            //lpp.addAnalogOutput(4, battery());
+            lpp.addDigitalOutput(5, gps_sats());
+            lpp.addAnalogOutput(6, gps_hdop());
 
-    }
+        }
+    #endif
 
     #if LORAWAN_CONFIRMED_EVERY > 0
         bool confirmed = (count % LORAWAN_CONFIRMED_EVERY == 0);
@@ -128,7 +130,9 @@ void callback(uint8_t message) {
             screen_off();
 
             // GPS
-            if (gps_connected()) gps_disconnect();
+            #if GPS_ENABLE
+                if (gps_connected()) gps_disconnect();
+            #endif
 
             // Set the left most button to wake the board
             sleep_interrupt(BUTTON_A_PIN, LOW);
@@ -217,14 +221,16 @@ void setup() {
     screen_print("M5STACK-RFM95 TTN EXAMPLE\n", BLUE);
 
     // GPS setup
-    gps_connect();
-    if (gps_connected()) {
-        screen_print("[GPS] GPS connected!\n", GREEN);
-        gps_prime(GPS_PRIMING_TIME);
-        if (gps_valid()) {
-            screen_print("[GPS] GPS position lock!\n", GREEN);
+    #if GPS_ENABLE
+        gps_connect();
+        if (gps_connected()) {
+            screen_print("[GPS] GPS connected!\n", GREEN);
+            gps_prime(GPS_PRIMING_TIME);
+            if (gps_valid()) {
+                screen_print("[GPS] GPS position lock!\n", GREEN);
+            }
         }
-    }
+    #endif
 
     // TTN setup
     if (!ttn_setup()) {
@@ -259,6 +265,9 @@ void loop() {
     }
 
     ttn_loop();
-    gps_loop();
+    
+    #if GPS_ENABLE
+        gps_loop();
+    #endif
 
 }

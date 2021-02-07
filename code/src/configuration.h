@@ -58,6 +58,8 @@ void ttn_register(void (*callback)(uint8_t message));
 // GPS
 // -----------------------------------------------------------------------------
 
+#define GPS_ENABLE              0
+
 #define GPS_VIA_BLUETOOTH
 #define GPS_ADDRESS             {0x00, 0x80, 0x5A, 0x68, 0x1A, 0x6B}
 #define GPS_PIN                 "0000"

@@ -19,6 +19,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 */
 
+#if GPS_ENABLE
+
 #include <TinyGPS++.h>
 TinyGPSPlus GPS_Decoder;
 
@@ -135,3 +137,5 @@ unsigned char gps_sats() {
 }
 
 #endif
+
+#endif // GPS_ENABLED
